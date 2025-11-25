@@ -1,31 +1,33 @@
-Tailwind Prefixer
+<div align="center">
+  <h1>Tailwind Prefixer</h1>
+  <p>A VS Code extension to correctly prefix Tailwind CSS utility classes.</p>
+</div>
 
-Reliable Utility Class Scoping for VS Code
+<div align="center">
+    <img src="images/1.png" alt="Run Command" width="800" />
+    <img src="images/2.png" alt="Select Prefix" width="800" />
+</div>
 
-This extension enables fast, accurate, whole-file prefixing of Tailwind CSS utility classes (e.g., changing flex to ts-flex). Unlike simple regex tools, it uses Abstract Syntax Tree (AST) parsing to safely and reliably transform classes in complex modern files (JS, JSX, TS, TSX, cva, cn). It ensures 100% accuracy, maintaining code structure and preserving all CSS variants.
+## 🚀 How to use
 
-✨ Key Features
+✅ Open File: Open the JS, JSX, TS, or TSX file containing the Tailwind classes.
 
-AST Reliability: Guarantees accurate replacement in complex frameworks like React and Svelte.
+✅ Run Command: Open the VS Code Command Palette (Ctrl/Cmd + Shift + P).
 
-Variant Preservation: Correctly prefixes the utility while preserving variants (md:hover:bg-red-500 becomes md:hover:ts-bg-red-500).
+✅ Execute: Type and select "Tailwind Prefixer: Apply Prefix to File".
 
-CVA/CN Support: Transforms classes within class-variance-authority and clsx/classnames functions.
+✅ Enter Prefix: Enter your desired prefix (e.g., ts-, app-) and press Enter.
 
-Configuration Ignored: Smartly skips variant names in defaultVariants object properties.
-
-🛠 How to Use It
-
-Open File: Open the JS, JSX, TS, or TSX file containing the Tailwind classes.
-
-Run Command: Open the VS Code Command Palette (Ctrl/Cmd + Shift + P).
-
-Execute: Type and select "Tailwind Prefixer: Apply Prefix to File".
-
-Enter Prefix: Enter your desired prefix (e.g., ts-, app-) and press Enter.
-
-The utility classes in the active file will be instantly and correctly updated.
-
-License
+## License
 
 This project is licensed under the MIT License.
+
+## 💖 Support
+
+If you find Tailwind Prefixer helpful and would like to support continued maintenance and development, consider buying me a coffee. Your contributions help pay for ongoing improvements and prioritization of new features.
+
+<div align="left">
+  <a href="https://buymeacoffee.com/bhacker150b" target="_blank" rel="noopener noreferrer">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" style="height: 60px; width: 217px;" />
+  </a>
+</div>
