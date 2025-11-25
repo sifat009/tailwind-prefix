@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Tailwind Prefixer</h1>
+  <h1>Tailwind Prefix</h1>
   <p>A VS Code extension to correctly prefix Tailwind CSS utility classes.</p>
 </div>
 
@@ -11,7 +11,7 @@
 
 ✅ Run Command: Open the VS Code Command Palette (Ctrl/Cmd + Shift + P).
 
-✅ Execute: Type and select "Tailwind Prefixer: Apply Prefix to File".
+✅ Execute: Type and select "Tailwind Prefix: Apply Prefix to File".
 
 ✅ Enter Prefix: Enter your desired prefix (e.g., ts-, app-) and press Enter.
 
@@ -21,7 +21,7 @@ This project is licensed under the MIT License.
 
 ## 💖 Support
 
-If you find Tailwind Prefixer helpful and would like to support continued maintenance and development, consider buying me a coffee. Your contributions help pay for ongoing improvements and prioritization of new features.
+If you find Tailwind Prefix helpful and would like to support continued maintenance and development, consider buying me a coffee. Your contributions help pay for ongoing improvements and prioritization of new features.
 
 <div align="left">
   <a href="https://buymeacoffee.com/bhacker150b" target="_blank" rel="noopener noreferrer">
