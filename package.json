@@ -9,7 +9,7 @@
 		"vscode": "^1.106.0"
 	},
 	"repository": {
-		"url": "https://github.com/sifat009/tailwind-prefixer"
+		"url": "https://github.com/sifat009/tailwind-prefix"
 	},
 	"categories": [
 		"Other"
