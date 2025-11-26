@@ -7,13 +7,36 @@
 
 ## 🚀 How to use
 
+### Add Prefix to Tailwind Classes
+
 ✅ Open File: Open the JS, JSX, TS, or TSX file containing the Tailwind classes.
 
 ✅ Run Command: Open the VS Code Command Palette (Ctrl/Cmd + Shift + P).
 
-✅ Execute: Type and select "Tailwind Prefix: Apply Prefix to File".
+✅ Execute: Type and select "Tailwind Prefix: Add Prefix to tailwind classes".
 
 ✅ Enter Prefix: Enter your desired prefix (e.g., ts-, app-) and press Enter.
+
+### Rename Existing Prefix
+
+✅ Open File: Open the JS, JSX, TS, or TSX file containing prefixed Tailwind classes.
+
+✅ Run Command: Open the VS Code Command Palette (Ctrl/Cmd + Shift + P).
+
+✅ Execute: Type and select "Tailwind Prefix: Rename Existing Prefix".
+
+✅ Enter Old Prefix: Enter the current prefix you want to replace (e.g., ts-).
+
+✅ Enter New Prefix: Enter the new prefix you want to use (e.g., tw-). Leave empty to remove the prefix entirely.
+
+## Features
+
+- ✨ **Add Prefix**: Automatically add a prefix to all Tailwind classes in your file
+- 🔄 **Rename Prefix**: Rename an existing prefix to a new one across your entire file
+- 🎯 **Smart Detection**: Automatically detects prefix from your `tailwind.config.js`
+- 🔍 **Selective Application**: Only prefixes valid Tailwind utility classes
+- 🎨 **Variant Support**: Works with Tailwind variants (hover:, focus:, etc.)
+- 📦 **Framework Support**: Works with className, class attributes, and utility functions like `cn()` and `cva()`
 
 ## License
 

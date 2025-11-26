@@ -169,6 +169,45 @@ function applyPrefix(str, prefix) {
 }
 
 /**
+ * Rename existing prefix to a new prefix
+ */
+function renamePrefix(str, oldPrefix, newPrefix) {
+	if (!str) return '';
+	if (!oldPrefix || oldPrefix.trim() === '') return str;
+
+	const classes = str
+		.trim()
+		.split(/\s+/)
+		.filter((c) => c.length > 0);
+
+	const result = classes.map((cls) => {
+		// Handle variants (e.g., hover:ts-bg-blue-500)
+		const lastColon = cls.lastIndexOf(':');
+		let variants = '';
+		let utility = cls;
+
+		if (lastColon !== -1) {
+			variants = cls.substring(0, lastColon + 1);
+			utility = cls.substring(lastColon + 1);
+		}
+
+		// Check if the utility starts with the old prefix
+		if (!utility.startsWith(oldPrefix)) return cls;
+
+		// Remove old prefix
+		const withoutOldPrefix = utility.substring(oldPrefix.length);
+
+		// Check if it's a valid Tailwind class after removing prefix
+		if (!isTailwindClass(withoutOldPrefix)) return cls;
+
+		// Apply new prefix
+		return variants + newPrefix + withoutOldPrefix;
+	});
+
+	return result.join(' ');
+}
+
+/**
  * Find nearest tailwind.config file searching upwards from a start path
  */
 function findNearestConfigPath(startPath) {
@@ -358,7 +397,146 @@ function activate(context) {
 		vscode.window.showInformationMessage(`Successfully applied prefix to ${edits.length} class string(s)!`);
 	});
 
+	let renameDisposable = vscode.commands.registerCommand('tailwindPrefixHelper.renamePrefix', async () => {
+		const editor = vscode.window.activeTextEditor;
+		if (!editor) return vscode.window.showWarningMessage('No active editor.');
+
+		const document = editor.document;
+
+		// Detect current prefix from config
+		let detectedPrefix = '';
+		try {
+			const configPath = findNearestConfigPath(document.uri.fsPath);
+			const detected = await getPrefixFromConfig(configPath);
+			if (detected && typeof detected === 'string' && detected.trim() !== '') detectedPrefix = detected;
+		} catch (e) {
+			console.error(e.message);
+		}
+
+		// Ask for the old prefix
+		const oldPrefix = await vscode.window.showInputBox({
+			prompt: 'Enter the current/old prefix to rename (e.g., ts-, old-).',
+			placeHolder: 'ts-',
+			value: detectedPrefix,
+			ignoreFocusOut: true,
+			validateInput: (text) => (!text || text.trim() === '' ? 'Old prefix cannot be empty.' : null),
+		});
+
+		if (!oldPrefix) return;
+
+		// Ask for the new prefix
+		const newPrefix = await vscode.window.showInputBox({
+			prompt: 'Enter the new prefix to replace with (e.g., tw-, new-). Leave empty to remove prefix.',
+			placeHolder: 'tw-',
+			value: '',
+			ignoreFocusOut: true,
+		});
+
+		if (newPrefix === undefined) return; // User cancelled
+
+		const fullText = document.getText();
+		const fileExt = document.fileName.split('.').pop().toLowerCase();
+
+		let ast;
+		let edits = [];
+
+		try {
+			const plugins = [
+				'objectRestSpread',
+				'classProperties',
+				'optionalChaining',
+				'nullishCoalescing',
+				'dynamicImport',
+				'classPrivateProperties',
+				'topLevelAwait',
+				'numericSeparator',
+			];
+
+			if (fileExt === 'tsx') {
+				plugins.unshift(['typescript', { isTSX: true }], 'jsx');
+			} else if (fileExt === 'ts') {
+				plugins.unshift('typescript');
+			} else if (fileExt === 'jsx' || fileExt === 'js') {
+				plugins.unshift('jsx');
+			}
+
+			ast = parser.parse(fullText, {
+				sourceType: 'module',
+				plugins,
+			});
+		} catch (e) {
+			return vscode.window.showErrorMessage('Parser error: ' + e.message);
+		}
+
+		traverse(ast, {
+			StringLiteral(path) {
+				const node = path.node;
+				const raw = node.extra?.raw;
+
+				if (!raw) return;
+				const value = node.value;
+
+				const parent = path.parent;
+				const isCvaCn =
+					parent.type === 'CallExpression' && (parent.callee?.name === 'cva' || parent.callee?.name === 'cn');
+
+				const isObjProp = parent.type === 'ObjectProperty' && parent.value === node;
+
+				if (!(isCvaCn || isObjProp)) return;
+				if (!looksLikeTailwindClasses(value)) return;
+
+				const newVal = renamePrefix(value, oldPrefix, newPrefix);
+				if (newVal === value) return;
+
+				edits.push({
+					start: node.start,
+					end: node.end,
+					newText: raw[0] + newVal + raw[raw.length - 1],
+				});
+			},
+
+			JSXAttribute(path) {
+				if (path.node.name.name !== 'className' && path.node.name.name !== 'class') return;
+
+				const valueNode = path.node.value;
+				if (!valueNode || valueNode.type !== 'StringLiteral') return;
+
+				const raw = valueNode.extra?.raw;
+				if (!raw) return;
+
+				const value = valueNode.value;
+				const newVal = renamePrefix(value, oldPrefix, newPrefix);
+				if (newVal === value) return;
+
+				edits.push({
+					start: valueNode.start,
+					end: valueNode.end,
+					newText: raw[0] + newVal + raw[raw.length - 1],
+				});
+			},
+		});
+
+		if (edits.length === 0) {
+			return vscode.window.showInformationMessage(`No classes found with prefix "${oldPrefix}".`);
+		}
+
+		edits.sort((a, b) => b.start - a.start);
+
+		await editor.edit((editBuilder) => {
+			for (const e of edits) {
+				const range = new vscode.Range(document.positionAt(e.start), document.positionAt(e.end));
+				editBuilder.replace(range, e.newText);
+			}
+		});
+
+		const prefixMsg = newPrefix ? `"${oldPrefix}" to "${newPrefix}"` : `"${oldPrefix}" (removed)`;
+		vscode.window.showInformationMessage(
+			`Successfully renamed prefix from ${prefixMsg} in ${edits.length} class string(s)!`,
+		);
+	});
+
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(renameDisposable);
 }
 
 function deactivate() {}

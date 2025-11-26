@@ -1,5 +1,9 @@
 **Change Log**
 
+[1.1.0] - 2025-11-27
+
+- Added support for renaming existing prefix with new one.
+
 [1.0.4] - 2025-11-26
 
 - Added auto prefix detection from tailwind.config.js file in the workspace. If a prefix is defined in the config, it will be suggested as the default prefix in the input box.
