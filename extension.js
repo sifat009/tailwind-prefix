@@ -1,6 +1,9 @@
 const vscode = require('vscode');
 const parser = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
+const path = require('path');
+const fs = require('fs');
+const { pathToFileURL } = require('url');
 
 /**
  * Check if a string looks like it contains Tailwind classes
@@ -166,24 +169,97 @@ function applyPrefix(str, prefix) {
 }
 
 /**
+ * Find nearest tailwind.config file searching upwards from a start path
+ */
+function findNearestConfigPath(startPath) {
+	const configNames = ['tailwind.config.js', 'tailwind.config.cjs', 'tailwind.config.mjs', 'tailwind.config.ts'];
+	let dir = path.dirname(startPath);
+
+	const workspaceFolders = vscode.workspace.workspaceFolders;
+	const workspaceRoot = workspaceFolders?.[0]?.uri.fsPath;
+
+	while (dir) {
+		for (const name of configNames) {
+			const p = path.join(dir, name);
+			if (fs.existsSync(p)) return p;
+		}
+		if (workspaceRoot && dir === workspaceRoot) break;
+		const parent = path.dirname(dir);
+		if (parent === dir) break;
+		dir = parent;
+	}
+
+	return null;
+}
+
+/**
+ * Extract prefix value from config via import/require or fallback to regex parse
+ */
+async function getPrefixFromConfig(configPath) {
+	if (!configPath) return null;
+
+	const ext = path.extname(configPath).toLowerCase();
+
+	// Try importing the config first (works for CJS/Esm; may fail on .ts)
+	try {
+		const mod = await import(pathToFileURL(configPath).href);
+		const conf = mod && (mod.default ?? mod);
+		if (conf && typeof conf.prefix === 'string' && conf.prefix.trim() !== '') {
+			return conf.prefix;
+		}
+	} catch (e) {
+		// fallback to require (common case for CJS)
+		try {
+			const conf = require(configPath);
+			if (conf && typeof conf.prefix === 'string' && conf.prefix.trim() !== '') {
+				return conf.prefix;
+			}
+		} catch (err) {
+			// continue to regex fallback
+		}
+	}
+
+	// Fallback: read file and find prefix with regex (works for .ts)
+	try {
+		const text = fs.readFileSync(configPath, 'utf8');
+		const m = text.match(/prefix\s*:\s*(['"`])([^'"`]+?)\1/);
+		if (m && m[2]) return m[2];
+	} catch (e) {
+		// ignore
+	}
+
+	return null;
+}
+
+/**
  * Main activation
  */
 function activate(context) {
 	let disposable = vscode.commands.registerCommand('tailwindPrefixHelper.applyTsPrefix', async () => {
+		const editor = vscode.window.activeTextEditor;
+		if (!editor) return vscode.window.showWarningMessage('No active editor.');
+
+		const document = editor.document;
+		// detect prefix from nearest tailwind config
+		let defaultPrefix = 'ts-';
+		try {
+			const configPath = findNearestConfigPath(document.uri.fsPath);
+			const detected = await getPrefixFromConfig(configPath);
+			if (detected && typeof detected === 'string' && detected.trim() !== '') defaultPrefix = detected;
+		} catch (e) {
+			console.error(e.message);
+		}
+
 		const prefix = await vscode.window.showInputBox({
 			prompt: 'Enter the Tailwind prefix you want to apply (e.g., ts-, custom-).',
 			placeHolder: 'ts-',
-			value: 'ts-',
+			value: defaultPrefix,
 			ignoreFocusOut: true,
 			validateInput: (text) => (!text || text.trim() === '' ? 'Prefix cannot be empty.' : null),
 		});
 
 		if (!prefix) return;
 
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) return vscode.window.showWarningMessage('No active editor.');
-
-		const document = editor.document;
 		const fullText = document.getText();
 		const fileExt = document.fileName.split('.').pop().toLowerCase();
 
