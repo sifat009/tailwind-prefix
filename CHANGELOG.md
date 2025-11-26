@@ -2,6 +2,9 @@ Change Log
 
 All notable changes to the "Tailwind Prefix" extension will be documented in this file.
 
+[1.0.1] - 2025-12-05
+Updated github repository URL in package.json to the correct link.
+
 [1.0.0] - 2025-11-23
 
 Added

@@ -3,7 +3,7 @@
 	"displayName": "Tailwind Prefix",
 	"description": "A VS Code extension to correctly prefix Tailwind CSS utility classes.",
 	"icon": "images/logo.png",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"publisher": "Sifat",
 	"engines": {
 		"vscode": "^1.106.0"
