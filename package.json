@@ -3,10 +3,10 @@
 	"displayName": "Tailwind Prefix",
 	"description": "A VS Code extension to correctly prefix Tailwind CSS utility classes.",
 	"icon": "images/logo.png",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"publisher": "Sifat",
 	"engines": {
-		"vscode": "^1.106.0"
+		"vscode": "^1.103.0"
 	},
 	"repository": {
 		"url": "https://github.com/sifat009/tailwind-prefix"
@@ -55,7 +55,7 @@
 		"@babel/traverse": "^7.28.5"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.106.1",
+		"@types/vscode": "^1.103.0",
 		"@types/webpack": "^5.28.5",
 		"ts-loader": "^9.5.4",
 		"vsce": "^2.15.0",

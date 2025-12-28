@@ -1,5 +1,9 @@
 **Change Log**
 
+[1.1.2] - 2025-12-28
+
+- Updated engines vscode to ^1.103.0
+
 [1.1.1] - 2015-11-30
 
 - Created separate file for tailwind classes
