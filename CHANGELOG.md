@@ -1,5 +1,9 @@
 **Change Log**
 
+[1.1.3] - 2025-12-28
+
+- Added github actions for automatic release to vscode marketplace on new push to main branch.
+
 [1.1.2] - 2025-12-28
 
 - Updated engines vscode to ^1.103.0
